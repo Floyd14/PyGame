@@ -48,3 +48,5 @@ while True:
     # dovute al refresh della memoria video che deve ridisegnare ogni volta la stessa 
     # immagine sullo stesso buffer.
     pygame.display.flip()
+
+fff
