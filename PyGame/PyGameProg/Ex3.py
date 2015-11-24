@@ -5,8 +5,7 @@
 #
 # http://www.appuntidigitali.it/author/mirco-tracolli/page/4/
 #
-# Lo scopo: fare in modo che il nostro gioco sia percepito alla stessa velocit� da 
-# chiunque lo provi. Per fare questo utilizzeremo il modulo Time della libreria pygame.
+# Lo scopo: gestire i comandi
 ##
 
 imm_sfondo = "./Resources/introduzione.jpg"
