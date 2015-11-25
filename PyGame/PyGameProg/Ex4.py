@@ -1,11 +1,11 @@
 # -*- coding: UTF-8 -*-
 
 ##
-#    -- Gestire Mause e Tastiera --
+#    -- Gestire Musica ed effetti --
 #
 # http://www.appuntidigitali.it/12120/sviluppare-un-gioco-in-python-il-suono-dei-videogiochi/
 #
-# Lo scopo: gestire i comandi
+# Lo scopo: gestire suoni e musica..
 ##
 
 imm_sfondo = "./Resources/introduzione.jpg"
@@ -19,6 +19,7 @@ from sys import exit
 pygame.mixer.pre_init(44100, 16, 2, 4096)
 pygame.init()
 
+# solite cose...
 screen = pygame.display.set_mode((640,480), DOUBLEBUF | HWSURFACE, 32)
 pygame.display.set_caption('Input Vari')
 
@@ -51,7 +52,6 @@ pygame.mixer.music.load('./Resources/Believe.wav')
 playmusica = True
 volume_musica = 1.0
 
-
 # Main
 while True:
     for event in pygame.event.get():
@@ -74,17 +74,19 @@ while True:
                 move_x = -1
             if event.key == K_RIGHT:
                 move_x = 1
-
+            
+            # stoppo la musica se premo il tasto m...
             if event.key == K_m:
                 if playmusica:
                     playmusica = False
                 else:
                     playmusica = True
-
+            
+            # Alzo il volume se         
             if event.key == K_KP_PLUS:
-                if volume_musica == (1.0) and pygame.mixer.music.get_busy()==True:
+                if volume_musica == (1.0) and pygame.mixer.music.get_busy()==True: # Se la musica viene eseguita...
                     volume_musica += 0.1
-                    pygame.mixer.music.set_volume(volume_musica)
+                    pygame.mixer.music.set_volume(volume_musica) # setto il volume...
 
             if event.key == K_KP_MINUS:
                 if volume_musica == (0.0) and pygame.mixer.music.get_busy()==True:
@@ -116,7 +118,7 @@ while True:
                     sfondo = pygame.image.load(imm_sfondo).convert()
 
         if pulsanti_mouse[2]==1:
-
+            # Quando premo il pulsante del mouse instanzio il canale .. avvio un suono
             canaleclick = click2.play()
 
             if imm_sfondo == './Resources/giocoavviato.jpg':
