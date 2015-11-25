@@ -63,7 +63,6 @@ def agg_rect(sprite):
     s,t,o,p = sprite.rect
     sprite.rect.move_ip(int(x)-s,int(y)-t)
 
-
 # Restituisce il tempo trascorso in sec..
 def tps(orologio, fps):
     temp = orologio.tick(fps)
@@ -92,7 +91,7 @@ class oggetto_esplosione(pygame.sprite.Sprite):
         self.screen = screen
         self.esplosione = False
 
-        self.audio = pygame.mixer.Sound("104447__dkmedic__EXPLODE.wav")
+        self.audio = pygame.mixer.Sound("./Resources/come_on.wav")
         self.canale_ex = pygame.mixer.Channel(4)
 
         self.maxframe = len(self.immagini)
@@ -103,7 +102,10 @@ class oggetto_esplosione(pygame.sprite.Sprite):
         self.fine = False
 
     def update(self, tps, stringa):
-        if self.esplosione == False and stringa is None:
+        #=======================================================================
+        # funzione di aggiornamento:
+        #=======================================================================
+        if self.esplosione == False and stringa is None: #sono in condizione di gioco 
             if ambiente.get_volume() != 1.0 and self.tempo_anim >= 1:
                 ambiente.set_volume(ambiente.get_volume()+0.01)
                 a_vento.set_volume(a_vento.get_volume()+0.01)
@@ -146,6 +148,7 @@ class oggetto_esplosione(pygame.sprite.Sprite):
                 return
  
 class oggetto_sprite(pygame.sprite.Sprite):
+    
     def __init__(self,nome,altezza,larghezza,xy,screen, num, gruppo):
         pygame.sprite.Sprite.__init__(self)
         self.immagini = carica_imm_sprite(nome,altezza,larghezza,num)
@@ -257,21 +260,21 @@ def run():
 
     schermo = pygame.display.set_mode((640,480),DOUBLEBUF|HWSURFACE,32)
 
-    sfondo_erba = pygame.image.load("grass3_cyc.jpg").convert()
+    sfondo_erba = pygame.image.load("./Resources/grass3_cyc.jpg").convert()
     sfondo_erba_scalato = pygame.transform.scale(sfondo_erba, (640,480))
 
-    pygame.mixer.music.load("Relocation.mp3")
+    pygame.mixer.music.load("./Resources/Believe.wav")
 
-    esplosione1 = oggetto_esplosione("Explode",96,96,(320,340),schermo,8)
-    esplosione2 = oggetto_esplosione("Explode",96,96,(100,200),schermo,8)
-    esplosione3 = oggetto_esplosione("Explode",96,96,(300,100),schermo,8)
-    esplosione4 = oggetto_esplosione("Explode",96,96,(450,50),schermo,8)
-    esplosione5 = oggetto_esplosione("Explode",96,96,(400,300),schermo,8)
+    esplosione1 = oggetto_esplosione("./Resources/Explode",96,96,(320,340),schermo,8)
+    esplosione2 = oggetto_esplosione("./Resources/Explode",96,96,(100,200),schermo,8)
+    esplosione3 = oggetto_esplosione("./Resources/Explode",96,96,(300,100),schermo,8)
+    esplosione4 = oggetto_esplosione("./Resources/Explode",96,96,(450,50),schermo,8)
+    esplosione5 = oggetto_esplosione("./Resources/Explode",96,96,(400,300),schermo,8)
 
     esplosioni = pygame.sprite.Group()
     esplosioni.add(esplosione1, esplosione2, esplosione3, esplosione4, esplosione5)
 
-    personaggio = oggetto_sprite("27382_1174921384",48,32, (320,240),schermo,None,esplosioni)
+    personaggio = oggetto_sprite("./Resources/27382_1174921384",48,32, (320,240),schermo,None,esplosioni)
 
     pygame.key.set_repeat(100, 30)
 
@@ -283,8 +286,8 @@ def run():
     global a_vento
     global fine_gioco
 
-    vento = pygame.mixer.Sound("34338__ERH__wind.wav")
-    pioggia = pygame.mixer.Sound("81389__joedeshon__thunder_with_rain_02.wav")
+    vento = pygame.mixer.Sound("./Resources/applause-1.wav")
+    pioggia = pygame.mixer.Sound("./Resources/applause-1.wav")
 
     ambiente = pygame.mixer.Channel(2)
     a_vento = pygame.mixer.Channel(3)
@@ -292,7 +295,8 @@ def run():
     speed = 30.0
     orologio = pygame.time.Clock()
     fps = 30
-
+    
+    # Schermata Game Over
     mio_font = pygame.font.SysFont('dejavusans.ttf', 100)
     fine_gioco = mio_font.render("GAME OVER", True, (0,255,0))
 
