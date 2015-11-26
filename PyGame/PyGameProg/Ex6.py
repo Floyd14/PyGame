@@ -376,9 +376,9 @@ self._Applica_rect,self._FullScreen_rect]
     def render(self,screen,temp,msxy):
         if self.bool_ing == True:
             self.ing.render()
-                        return
+            return
 
-                screen.blit(self.Sfondo,(0,0))
+            screen.blit(self.Sfondo,(0,0))
 
         #############
         # Render Menu
@@ -675,17 +675,17 @@ def caricamento_imp():
         exit()
  
 def salvataggio_imp():
-     try:
-                stream = open("data/impostazioni.pkl", "w")
-                pk = cPickle.Pickler(stream)
-                imp = impostazioni()
-                pk.dump(imp)
-                stream.close()
-                pk.clear_memo()
-
-        except IOError:
-                print ("Impossibile creare file di configurazione")
-                exit()
+    try:
+        stream = open("data/impostazioni.pkl", "w")
+        pk = cPickle.Pickler(stream)
+        imp = impostazioni()
+        pk.dump(imp)
+        stream.close()
+        pk.clear_memo()
+        
+    except IOError:
+        print ("Impossibile creare file di configurazione")
+        exit()
  
 def aggiorna_imp(w,h,full,buff,hw,opengl):
     try:
