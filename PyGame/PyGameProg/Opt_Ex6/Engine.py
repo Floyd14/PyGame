@@ -18,7 +18,9 @@ def carica_imm_sprite(nome, h, w, num):
         sprite =  pg.image.load(Path.images + nome + ".png").convert_alpha()
         #sprite_w, sprite_h = imm1.get_size()
         
-        [immagini.append(sprite.subsurface(x*w, y*h, w, h)) for x in range(int(sprite.get_size()[0])/h) for y in range(int(sprite.get_size()[1])/w)]
+        [immagini.append(sprite.subsurface(x*w, y*h, w, h)) 
+         for x in range(int(sprite.get_size()[0])/h) 
+         for y in range(int(sprite.get_size()[1])/w)]
         #for y in range(int(imm1_h/h)):
         #   for x in range(int(imm1_w/w)):
         #      immagini.append(imm1.subsurface((x*w, y*h, w, h)))     
