@@ -11,8 +11,175 @@
 # http://www.freesound.org/
 #
 ##
+import pygame
+from pygame.locals import *
+from sys import exit
+import cPickle
+
+#===============================================================================
+# As usuall: ritorna il tempo di gioco in secondi
+#===============================================================================
+def tps(orologio, fps):
+    temp = orologio.tick(fps)
+    tps = temp /1000.
+    return tps
+
+
+#===============================================================================
+# As usuall: ritorna la lista di sprites..
+#===============================================================================
+def carica_imm_sprite(nome,h,w,num):
+    immagini = []
+    if num is None or num == 1:
+        imm1 =  pygame.image.load("data/"+nome+".png").convert_alpha()
+        imm1_w, imm1_h = imm1.get_size()
+
+        for y in range(int(imm1_h/h)):
+            for x in range(int(imm1_w/w)):
+                immagini.append(imm1.subsurface((x*w,y*h,w,h)))
+                
+        return immagini
+    else:
+        for x in range(1,num):
+            imm1 = pygame.image.load("data/"+nome+str(x)+".png").convert_alpha()
+            immagini.append(imm1)
+        return immagini
+    
+#===============================================================================
+# Mancata gestione di Rect, perché in questo caso vogliamo solo muovere il 
+# nostro giocatore sullo schermo e memorizzare la sua posizione con un 
+# salvataggio. La gestione dell’animazione è identica, come la sua renderizzazione.
+#===============================================================================
+class giocatore(pygame.sprite.Sprite):
+    def __init__(self,nome,altezza,larghezza,xy,num):
+        pygame.sprite.Sprite.__init__(self)
+        self.immagini = carica_imm_sprite(nome,altezza,larghezza,num)
+        self.immagine = self.immagini[0]
+
+        self.coordinate = (int(xy[0]),int(xy[1]))
+
+        self.animazione = False
+        self.anim_corrente = 0
+
+        self.tempo_animazione = 0.0
+
+        self.passo1 = pygame.mixer.Sound("data/sound/passo1.wav")
+        self.passo2 = pygame.mixer.Sound("data/sound/passo2.wav")
+        self.Passi = pygame.mixer.Channel(1)
+        
+#===============================================================================
+# 
+#===============================================================================
+
+    def anime(self,frame):
+        if self.animazione == False:
+            self.anim_corrente = 0
+            self.immagine = self.immagini[frame]
+            return
+        else :
+            if self.tempo_animazione<0.075:
+                self.tempo_animazione += orologio.get_time()/1000.
+            else:
+                self.immagine = self.immagini[self.anim_corrente+frame]
+                if self.Passi.get_sound() is None or self.Passi.get_sound() != self.passo1:
+                    if self.Passi.get_busy() == False:
+                        self.Passi = self.passo1.play()
+                    else:
+                        self.Passi.queue(self.passo1)
+                else :
+                    if self.Passi.get_busy() == True:
+                        self.Passi.queue(self.passo2)
+                if self.anim_corrente < 3:
+                    self.anim_corrente +=1
+                else:
+                    self.anim_corrente = 0
+                self.tempo_animazione = 0
+
+#===============================================================================
+# update():  imposta l'animazioni true o false e aggiorna i frame con le nuove
+# coordinate
+#===============================================================================
+    def update(self, direzione,frame):
+
+        self.animazione = True
+        self.anime(frame)
+        x,y = self.coordinate
+        if direzione == "basso":
+            y += 1*speed*tempo_passato
+            self.coordinate = x,y
+            return
+        if direzione == "alto":
+            y -= 1*speed*tempo_passato
+            self.coordinate = x,y
+            return
+        if direzione == "destra":
+            x += 1*speed*tempo_passato
+            self.coordinate = x,y
+            return
+        if direzione == "sinistra":
+            x -= 1*speed*tempo_passato
+            self.coordinate = x,y
+            return
+
+        elif direzione == "stop":
+            self.Passi.stop()
+            self.animazione = False
+            
+#===============================================================================
+# Questa classe ha il compito di mantere e gestire l’istanza di gioco. In 
+# questo caso viene inizializzata con il giocatore corrente, lo schermo dove 
+# si deve renderizzare e l’immagine dello sfondo.
+# Il render è molto semplice e consiste solo nel fatto di stampare a video 
+# l’immagine dello sfondo con il giocatore.
+# Questa classe è necessaria, in questo esempio, per passare dal menù al gioco 
+# e viceversa. Separando le due cose infatti, è più semplice gestire quello che 
+# sono le semplici meccaniche di gioco dalla gestione esterna. Nella nostra 
+# situazione però, come già accennato, sarà sempre il menù ad avere il “comando” 
+# della situazione.
+#===============================================================================
+class ingame():
+    def __init__(self, player1, screen1, base):
+        self.giocatore = player1 #giocatore
+        self.screen = screen1 # schermo dove si renderizza
+        self.base = base #sfondo
+        
+    # renderizza lo screen
+    def render(self):
+        self.screen.blit(self.base, (0,0))
+        self.screen.blit(self.giocatore.immagine, self.giocatore.coordinate)
+
+
+#===============================================================================
+# Come possiamo vedere, questa classe ha bisogno solo di essere inizializzata 
+# con delle impostazioni di base. Per ora non abbiamo impostato nessun metodo 
+# che lavori su di essa, perché ho preferito agire direttamente sui suoi
+# componenti per cambiare lo stato delle cose. Essendo gestita in questo modo, 
+# non ha bisogno di altro perché ci servirà solo per creare il nostro primo 
+# oggetto impostazioni, che sarà salvato con cPickle (vedremo in seguito come), 
+# per poi essere modificato dal menù a seconda delle nostre esigenze.
+#===============================================================================
+class impostazioni():
+    def __init__(self):
+        self.larghezza_schermo = 640 # larghezza e altezza dllo schermo
+        self.altezza_schermo = 480  
+        self.full = False   # booleani per full schreen, acc hardware, ecc
+        self.bool_hw = False
+        self.bool_buff = False
+        self.bool_opengl = False
+        self.depth = 32 # altre impostazioni: freq, buffer ecc..
+        self.frequenza = 44100
+        self.dimensione = -16
+        self.canali = 2
+        self.buffer = 4096
 
 class main_menu():
+    #===========================================================================
+    # Istanza ci serve per tenere conto se siamo nel menù, oppure nel menù opzioni. 
+    # Memorizziamo poi screen ed ingame. Le variabili anim_push ed anim_push_bool 
+    # servono per gestire le animazioni dei pulsanti, invece bool_ing e count_init
+    # servono per tenere conto se siamo in gioco e se è la prima volta che inziamo 
+    # a giocare.
+    #===========================================================================
     def __init__(self, screen1, altezza_s, larghezza_s, ingame): #menu_opzioni, caricamento_gioco, salvataggio_gioco,inizio_gioco,screen)
         self.istanza = 0
         self.screen = screen1
@@ -21,7 +188,15 @@ class main_menu():
         self.ing = ingame
         self.bool_ing = False
         self.count_init = False
+        
 
+#===============================================================================
+# Apriamo il file impostazioni utilizzando cPickle e teniamo conto delle attuali 
+# impostazioni per essere modificate memorizzandole in variabili omonime: 
+# _Schermo_larghezza, _Schermo_altezza, _full, _bool_buff, _bool_hw e _bool_opengl. 
+# Come potete notare gestiamo l’apertuare del file con le eccezioni, per ovviare 
+# a problemi di apertura o chiusura file.
+#===============================================================================
         try:
             stream = open("data/impostazioni.pkl", "r")
             pk = cPickle.Unpickler(stream)
@@ -38,6 +213,19 @@ class main_menu():
             print ("Impossibile inizializzare Pygame")
             exit()
 
+
+#===============================================================================
+# Carichiamo sfondo di gioco e tutti i pulsanti del menù principale (comprese le 
+# loro animazioni, ovvero i tasti premuti). Dimezziamo le coordinate dello schermo, 
+# perché il nostro menù sarà sempre centrato, così da non portare complicazioni 
+# con risoluzioni differenti (ed ecco spiegato perché il gioco si riavvia una 
+# volta cambiate le impostazioni). Memorizziamo poi le zone dove dobbiamo gestire
+# le collisioni, per creare le animazioni dei pulsanti e cliccare quindi su di essi. 
+# Carichiamo il puntatore del mouse e l’audio del click, prenotando un canale per
+# lui. Teniamo conto del tasto premuto attualmente, in questo caso si parte da 
+# -1 perché il primo tasto, “Inizio”, sarà lo 0, mentre “Esci”, che è l’ultimo, 
+# sarà il 4.
+#===============================================================================
         ######
         # Menu
         self.Sfondo = pygame.image.load("data/Sfondo.jpg").convert()
@@ -188,9 +376,9 @@ self._Applica_rect,self._FullScreen_rect]
     def render(self,screen,temp,msxy):
         if self.bool_ing == True:
             self.ing.render()
-            return 
-        
-        screen.blit(self.Sfondo,(0,0))
+                        return
+
+                screen.blit(self.Sfondo,(0,0))
 
         #############
         # Render Menu
@@ -422,3 +610,142 @@ self._Applica_rect,self._FullScreen_rect]
 
             if self.anim_punt == False:
                     screen.blit(self.Puntatore,msxy)
+
+ 
+    #################################
+#Funzione che gestisce gli eventi
+def Eventi(event, Main):
+
+    if event.type == QUIT:
+        exit()
+
+    tasti_premuti = pygame.key.get_pressed()
+    pulsanti_mouse = pygame.mouse.get_pressed()
+
+    if event.type == KEYDOWN :
+        if tasti_premuti[K_ESCAPE]:
+            Main.action_esc()
+        elif tasti_premuti[K_LALT] and tasti_premuti[K_F4]:
+            exit()
+        elif tasti_premuti[K_DOWN]:
+            Main.action_p("basso",0)
+        elif tasti_premuti[K_UP]:
+            Main.action_p("alto",12)
+        elif tasti_premuti[K_RIGHT]:
+            Main.action_p("destra",8)
+        elif tasti_premuti[K_LEFT]:
+            Main.action_p("sinistra",4)
+
+    if event.type == MOUSEBUTTONDOWN:
+        if pulsanti_mouse[0]==1:
+            coordinate_mouse = pygame.mouse.get_pos()
+            Main.action(coordinate_mouse)
+ 
+def caricamento_imp():
+    try:
+        stream = open("data/impostazioni.pkl", "r")
+        pk = cPickle.Unpickler(stream)
+        imp = pk.load()
+        stream.close()
+        pygame.mixer.pre_init(imp.frequenza, imp.dimensione, imp.canali, imp.buffer)
+        pygame.init()
+        if imp.full == False and imp.bool_buff == False and imp.bool_hw == False and imp.bool_opengl == False:
+            screen = pygame.display.set_mode((imp.larghezza_schermo, imp.altezza_schermo))
+        elif imp.full == False and imp.bool_buff == False and imp.bool_hw == False and imp.bool_opengl == True:
+            screen = pygame.display.set_mode((imp.larghezza_schermo, imp.altezza_schermo),OPENGL,imp.depth)
+        elif imp.full == False and imp.bool_buff == False and imp.bool_hw == True and imp.bool_opengl == False:
+            screen = pygame.display.set_mode((imp.larghezza_schermo, imp.altezza_schermo),HWSURFACE,imp.depth)
+        elif imp.full == True and imp.bool_buff == False and imp.bool_hw == True and imp.bool_opengl == False:
+            screen = pygame.display.set_mode((imp.larghezza_schermo, imp.altezza_schermo),FULLSCREEN | HWSURFACE,imp.depth)
+        elif imp.full == False and imp.bool_buff == True and imp.bool_hw == True and imp.bool_opengl == False:
+            screen = pygame.display.set_mode((imp.larghezza_schermo, imp.altezza_schermo),DOUBLEBUF | HWSURFACE,imp.depth)
+        elif imp.full == True and imp.bool_buff == True and imp.bool_hw == True and imp.bool_opengl == False:
+            screen = pygame.display.set_mode((imp.larghezza_schermo, imp.altezza_schermo),FULLSCREEN | DOUBLEBUF | HWSURFACE,imp.depth)
+        elif imp.full == True and imp.bool_buff == False and imp.bool_hw == False and imp.bool_opengl == False:
+            screen = pygame.display.set_mode((imp.larghezza_schermo, imp.altezza_schermo),FULLSCREEN,imp.depth)
+        elif imp.full == True and imp.bool_buff == True and imp.bool_hw == False and imp.bool_opengl == True:
+            screen = pygame.display.set_mode((imp.larghezza_schermo, imp.altezza_schermo),FULLSCREEN | DOUBLEBUF | OPENGL,imp.depth)
+        elif imp.full == False and imp.bool_buff == True and imp.bool_hw == False and imp.bool_opengl == True:
+            screen = pygame.display.set_mode((imp.larghezza_schermo, imp.altezza_schermo),DOUBLEBUF | OPENGL,imp.depth)
+
+        return screen
+
+    except IOError:
+        print ("Impossibile inizializzare Pygame")
+        exit()
+ 
+def salvataggio_imp():
+     try:
+                stream = open("data/impostazioni.pkl", "w")
+                pk = cPickle.Pickler(stream)
+                imp = impostazioni()
+                pk.dump(imp)
+                stream.close()
+                pk.clear_memo()
+
+        except IOError:
+                print ("Impossibile creare file di configurazione")
+                exit()
+ 
+def aggiorna_imp(w,h,full,buff,hw,opengl):
+    try:
+        stream = open("data/impostazioni.pkl", "w")
+        pk = cPickle.Pickler(stream)
+        imp = impostazioni()
+        imp.larghezza_schermo = w
+        imp.altezza_schermo = h
+        imp.full = full
+        imp.bool_hw = hw
+        imp.bool_buff = buff
+        imp.bool_opengl = opengl
+        pk.dump(imp)
+        stream.close()
+        pk.clear_memo()
+
+    except IOError:
+        print ("Impossibile creare file di configurazione")
+        exit()
+ 
+def run():
+    try:
+        stream = open("data/impostazioni.pkl", "r")
+    except IOError:
+        salvataggio_imp()
+
+    Schermo = caricamento_imp()
+    Altezza_s = Schermo.get_height()
+    Larghezza_s = Schermo.get_width()
+    pygame.mouse.set_visible(False)
+
+    sfondo_erba = pygame.image.load("data/grass3_cyc.jpg").convert()
+    sfondo_erba_scalato = pygame.transform.scale(sfondo_erba, (Larghezza_s,Altezza_s))
+    personaggio = giocatore("27382_1174921384",48,32, (320,240), None)
+
+    global fps
+    global orologio
+    global tempo_passato
+    global speed
+
+    speed = 30.0
+    orologio = pygame.time.Clock()
+    fps = 60
+
+    Ingame = ingame(personaggio, Schermo, sfondo_erba_scalato)
+    Main = main_menu(Schermo, Altezza_s, Larghezza_s, Ingame)
+
+    pygame.key.set_repeat(100, 30)
+
+    while (True):
+        for event in pygame.event.get():
+            Eventi(event,Main)
+
+        tempo_passato = tps(orologio,fps)
+        mouse_x_y = pygame.mouse.get_pos()
+
+        Main.render(Schermo,tempo_passato,mouse_x_y)
+
+        pygame.display.flip()
+
+if __name__ == "__main__":
+    run()
+

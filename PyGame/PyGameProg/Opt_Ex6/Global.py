@@ -8,11 +8,11 @@ import os
 
 class Path:
     def __init__(self):
-        self.pulsantiImages = os.getcwd() + '\Assets\Data\Pulsanti'
-        self.images = os.getcwd + '\Assets\Data\img'
+        self.pulsantiImages = os.getcwd() + '\Assets\Data\Pulsanti\'
+        self.images = os.getcwd + '\Assets\Data\img\'
         self.musics = self.sounds
-        self.sounds = os.getcwd() + '\Assets\Data\Sound'
-        
+        self.sounds = os.getcwd() + '\Assets\Data\Sound\'
+        self.impostazioni = os.getcwd() + '\Assets\Data\'
         
 #if __name__=='__main__':
 #    print os.getcwd()
