@@ -7,29 +7,23 @@ The program should:
 - loads a backround, and an image that moves foward and back
 - '''
 
-import pygame as pg
-import os
+import pygame
 
-pg.init()
-pg.display.set_mode((640,480), )
-pg.display.set_caption('A Title...')
 
-surface = pg.Surface(screen.get_size())
-surface.convert()
-backgroung_image = pg.image.load('./data/ente.jpg', )
+# inizializzo i moduli
+pygame.init()
+# setto un display
+screen = pygame.display.set_mode((800, 600), pygame.DOUBLEBUF)
+pygame.display.set_caption('A Title..')
 
-mainloop = True
-while mainloop:
-    for event in pg.event.get():
-        if event.type == pg.QUIT:
-            mainloop = False # pygame window closed by user
-        elif event.type == pg.KEYDOWN:
-            if event.key == pg.K_ESCAPE:
-                mainloop = False # user pressed ESC
-    
-    surface.blit(backgroung_image,(0,0)
-    
-    
-    
-    
-    
+# setto un backgroung (Surface, superficie) nel display
+pygame.Surface(screen.get_size()).convert() #convert for suit screen
+
+# un orologio
+FPS = 60
+pygame.time.Clock(FPS)
+
+# Un loop ... 
+                
+                
+                
