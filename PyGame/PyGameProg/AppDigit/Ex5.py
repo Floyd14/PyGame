@@ -150,7 +150,7 @@ class oggetto_esplosione(pygame.sprite.Sprite):
 class oggetto_sprite(pygame.sprite.Sprite):
     
     def __init__(self,nome,altezza,larghezza,xy,screen, num, gruppo):
-        pygame.sprite.Sprite.__init__(self)
+        pygame.sprite.Sprite.__init__(self) 
         self.immagini = carica_imm_sprite(nome,altezza,larghezza,num)
         self.immagine = self.immagini[0]
 
