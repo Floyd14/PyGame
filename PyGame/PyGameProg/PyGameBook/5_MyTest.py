@@ -24,6 +24,3 @@ FPS = 60
 pygame.time.Clock(FPS)
 
 # Un loop ... 
-                
-                
-                
